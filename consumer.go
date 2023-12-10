@@ -1,11 +1,12 @@
 package jackrabbit
 
 import (
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // RabbitConsumer is a struct that handles all
-//   rabbitmq consuming needs
+//
+//	rabbitmq consuming needs
 type RabbitConsumer struct {
 	rc      *RabbitConnection
 	AutoAck bool

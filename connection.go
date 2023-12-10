@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // RabbitConnection holds and manages a single rabbitmq connection and channel.
@@ -21,7 +21,8 @@ type RabbitConnection struct {
 }
 
 // NewRabbitConnection creates a new connection to Rabbitmq based on the
-//  rabbitURL
+//
+//	rabbitURL
 func NewRabbitConnection(rabbitURL string) (*RabbitConnection, error) {
 	rConn := &RabbitConnection{
 		url:            rabbitURL,

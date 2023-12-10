@@ -1,7 +1,7 @@
 package jackrabbit
 
 import (
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // ExchangeDetails carries the specifics of an exchange

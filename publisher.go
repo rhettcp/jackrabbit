@@ -1,11 +1,12 @@
 package jackrabbit
 
 import (
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // RabbitPublisher is a struct that handles all
-//   rabbitmq publishing needs
+//
+//	rabbitmq publishing needs
 type RabbitPublisher struct {
 	rc *RabbitConnection
 }
@@ -15,7 +16,7 @@ func NewRabbitPublisher(rabbitConnection *RabbitConnection) (*RabbitPublisher, e
 	return &RabbitPublisher{rc: rabbitConnection}, nil
 }
 
-//Publish publishes data to the exchange with the routingKey
+// Publish publishes data to the exchange with the routingKey
 func (p *RabbitPublisher) Publish(exchange ExchangeDetails, routingKey string, data amqp.Publishing) error {
 	return p.rc.channel.Publish(
 		exchange.Name,
@@ -26,7 +27,7 @@ func (p *RabbitPublisher) Publish(exchange ExchangeDetails, routingKey string, d
 	)
 }
 
-//PublishSimple publishes data to the exchange with the routingKey
+// PublishSimple publishes data to the exchange with the routingKey
 func (p *RabbitPublisher) PublishSimple(exchange ExchangeDetails, routingKey string, data string) error {
 	return p.rc.channel.Publish(
 		exchange.Name,
