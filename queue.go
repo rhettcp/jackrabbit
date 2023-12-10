@@ -12,19 +12,22 @@ type QueueDetails struct {
 	Exclusive  bool
 	NoWait     bool
 	Args       amqp.Table
-	Bindings   []struct {
-		Name     string
-		Key      string
-		Exchange string
-		NoWait   bool
-		Args     amqp.Table
-	}
-	IfUsed  bool
-	IfEmpty bool
+	Bindings   []Binding
+	IfUsed     bool
+	IfEmpty    bool
+}
+
+type Binding struct {
+	Name     string
+	Key      string
+	Exchange string
+	NoWait   bool
+	Args     amqp.Table
 }
 
 // Create creates the underlying queue with bindings
-//   If any binding fails, queue is deleted
+//
+//	If any binding fails, queue is deleted
 func (q *QueueDetails) Create(channel *amqp.Channel) error {
 	_, err := channel.QueueDeclare(
 		q.Name,
