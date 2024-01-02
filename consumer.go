@@ -1,6 +1,8 @@
 package jackrabbit
 
 import (
+	"fmt"
+
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -45,4 +47,12 @@ func (c *RabbitConsumer) StartConsumer() error {
 		}
 	}()
 	return nil
+}
+
+func (c *RabbitConsumer) SetMaxUnacked(unackedCount int) error {
+	if c.rc.channel != nil {
+		return c.rc.channel.Qos(unackedCount, 0, false)
+	} else {
+		return fmt.Errorf("Channel was nil, unable to set unacked max")
+	}
 }
