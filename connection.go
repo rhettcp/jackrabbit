@@ -5,7 +5,10 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/rhettcp/go-common/logging"
 )
+
+var log = logging.Log
 
 // RabbitConnection holds and manages a single rabbitmq connection and channel.
 // It also handles disconnects and reconnects
@@ -82,6 +85,7 @@ func (r *RabbitConnection) startWatchdog() {
 				r.Close()
 				return
 			case <-r.connectionDone:
+				log.Warn("Connection Notification of Closure")
 				failCount := 0
 			connection:
 				_, err := r.reconnectConnection()
@@ -96,6 +100,7 @@ func (r *RabbitConnection) startWatchdog() {
 					r.channelDone = make(chan *amqp.Error)
 				}
 			case <-r.channelDone:
+				log.Warn("Channel Notification of Closure")
 				failCount := 0
 			channel:
 				_, err := r.reconnectChannel(true)
