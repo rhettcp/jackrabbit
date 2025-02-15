@@ -94,8 +94,10 @@ func (r *RabbitConnection) startWatchdog() {
 				if failCount >= 3 {
 					log.Error("Fail count greater than 3")
 					close(r.done)
+					return
 				} else if err != nil {
-					time.Sleep(100 * time.Millisecond)
+					log.Error("Error reconnecting: ", err)
+					time.Sleep(1000 * time.Millisecond * time.Duration(failCount))
 					failCount++
 					goto connection
 				} else if err == nil {
@@ -112,8 +114,9 @@ func (r *RabbitConnection) startWatchdog() {
 				if failCount >= 3 {
 					log.Error("Fail count greater than 3")
 					close(r.done)
+					return
 				} else if err != nil {
-					time.Sleep(100 * time.Millisecond)
+					time.Sleep(1000 * time.Millisecond * time.Duration(failCount))
 					failCount++
 					goto channel
 				} else if err == nil {
