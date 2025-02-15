@@ -92,6 +92,7 @@ func (r *RabbitConnection) startWatchdog() {
 			connection:
 				_, err := r.reconnectConnection()
 				if failCount >= 3 {
+					log.Error("Fail count greater than 3")
 					close(r.done)
 				} else if err != nil {
 					time.Sleep(100 * time.Millisecond)
@@ -108,6 +109,7 @@ func (r *RabbitConnection) startWatchdog() {
 			channel:
 				_, err := r.reconnectChannel(true)
 				if failCount >= 3 {
+					log.Error("Fail count greater than 3")
 					close(r.done)
 				} else if err != nil {
 					time.Sleep(100 * time.Millisecond)
@@ -127,10 +129,12 @@ func (r *RabbitConnection) reconnectConnection() (ok bool, err error) {
 	defer r.connChanLock.Unlock()
 	r.channel.Close()
 	r.connection.Close()
+	log.Debug("Dialing amqp connection")
 	c, err := amqp.Dial(r.url)
 	if err != nil {
 		return false, err
 	}
+	log.Debug("Amqp connection restablished")
 	r.connection = c
 	return r.reconnectChannel(false)
 }
@@ -139,6 +143,7 @@ func (r *RabbitConnection) reconnectChannel(shouldLock bool) (ok bool, err error
 	if shouldLock {
 		r.connChanLock.Lock()
 	}
+	log.Debug("creating reconnected channel")
 	ch, err := r.connection.Channel()
 	if err != nil {
 		if shouldLock {
@@ -150,5 +155,6 @@ func (r *RabbitConnection) reconnectChannel(shouldLock bool) (ok bool, err error
 	if shouldLock {
 		r.connChanLock.Unlock()
 	}
+	log.Debug("reconnected channel created")
 	return true, nil
 }
