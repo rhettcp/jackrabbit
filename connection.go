@@ -102,6 +102,7 @@ func (r *RabbitConnection) startWatchdog() {
 					r.connectionDone = make(chan *amqp.Error)
 					r.channelDone = make(chan *amqp.Error)
 				}
+				log.Info("Connection Restablished")
 				r.reconnectSignal <- struct{}{}
 			case <-r.channelDone:
 				log.Warn("Channel Notification of Closure")
@@ -118,6 +119,7 @@ func (r *RabbitConnection) startWatchdog() {
 				} else if err == nil {
 					r.channelDone = make(chan *amqp.Error)
 				}
+				log.Info("Channel Restablished")
 				r.reconnectSignal <- struct{}{}
 			}
 		}
