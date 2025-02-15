@@ -13,14 +13,15 @@ var log = logging.Log
 // RabbitConnection holds and manages a single rabbitmq connection and channel.
 // It also handles disconnects and reconnects
 type RabbitConnection struct {
-	connection     *amqp.Connection
-	channel        *amqp.Channel
-	connChanLock   sync.Mutex
-	notifiers      []chan interface{}
-	url            string
-	connectionDone chan *amqp.Error
-	channelDone    chan *amqp.Error
-	done           chan interface{}
+	connection      *amqp.Connection
+	channel         *amqp.Channel
+	connChanLock    sync.Mutex
+	notifiers       []chan interface{}
+	url             string
+	connectionDone  chan *amqp.Error
+	channelDone     chan *amqp.Error
+	reconnectSignal chan interface{}
+	done            chan interface{}
 }
 
 // NewRabbitConnection creates a new connection to Rabbitmq based on the
@@ -28,10 +29,11 @@ type RabbitConnection struct {
 //	rabbitURL
 func NewRabbitConnection(rabbitURL string) (*RabbitConnection, error) {
 	rConn := &RabbitConnection{
-		url:            rabbitURL,
-		connectionDone: make(chan *amqp.Error),
-		channelDone:    make(chan *amqp.Error),
-		done:           make(chan interface{}),
+		url:             rabbitURL,
+		connectionDone:  make(chan *amqp.Error),
+		channelDone:     make(chan *amqp.Error),
+		reconnectSignal: make(chan interface{}),
+		done:            make(chan interface{}),
 	}
 	c, err := amqp.Dial(rabbitURL)
 	if err != nil {
@@ -99,6 +101,7 @@ func (r *RabbitConnection) startWatchdog() {
 					r.connectionDone = make(chan *amqp.Error)
 					r.channelDone = make(chan *amqp.Error)
 				}
+				r.reconnectSignal <- struct{}{}
 			case <-r.channelDone:
 				log.Warn("Channel Notification of Closure")
 				failCount := 0
@@ -113,6 +116,7 @@ func (r *RabbitConnection) startWatchdog() {
 				} else if err == nil {
 					r.channelDone = make(chan *amqp.Error)
 				}
+				r.reconnectSignal <- struct{}{}
 			}
 		}
 	}()
